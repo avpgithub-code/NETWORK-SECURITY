@@ -59,10 +59,9 @@ ns_logger = NetworkSecurityLogger()
 #----------------------------------------------------------
 # Example usage:
 #----------------------------------------------------------
-if __name__ == "__main__":
-    # ns_logger = NetworkSecurityLogger()
-    ns_logger.log_info("Network security monitoring started.")
-    ns_logger.log_warning("Potential threat detected.")
-    ns_logger.log_error("Error in network security module.")
-    ns_logger.log_debug("Debugging network security issue.")
+# if __name__ == "__main__":
+    # ns_logger.log_info("Network security monitoring started.")
+    # ns_logger.log_warning("Potential threat detected.")
+    # ns_logger.log_error("Error in network security module.")
+    # ns_logger.log_debug("Debugging network security issue.")
 #----------------------------------------------------------

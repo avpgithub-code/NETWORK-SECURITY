@@ -1,5 +1,5 @@
 import sys
-from networksecurity.logging.logger import ns_logger # Safe: logger doesn't import this back
+from networksecurity.components.logger import ns_logger # Safe: logger doesn't import this back
 
 class CustomException(Exception):
     def __init__(self, error_message, error_detail: sys):
@@ -15,10 +15,10 @@ class CustomException(Exception):
         line_num = exc_tb.tb_lineno
         return f"Error in [{file_name}] line [{line_num}]: {str(error)}"
 #----------------------------------------------------------
-if __name__ == "__main__":
-    # Test the exception and logger integration
-    try:
-        x = 1 / 0
-    except Exception as e:
-        # This will print the error AND save it to logs/system.log
-        raise CustomException(e, sys)
+# if __name__ == "__main__":
+#     # Test the exception and logger integration
+#     try:
+#         x = 1 / 0
+#     except Exception as e:
+#         # This will print the error AND save it to logs/system.log
+#         raise CustomException(e, sys)
