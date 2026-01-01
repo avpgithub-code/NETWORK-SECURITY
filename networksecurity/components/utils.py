@@ -5,8 +5,10 @@ such as ensuring the existence of directories.
 """
 import os
 import sys
+import pymongo
 import pandas as pd
 from pathlib import Path
+from typing import Tuple, List
 from sklearn import set_config
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
@@ -16,15 +18,15 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 #------------------------------------------------------------------
 # Import custom exception and logger
 #------------------------------------------------------------------
-import networksecurity.components.exception as CustomException
-# import src.myproject.logger as logger
 import networksecurity.components.constants as constants
+from networksecurity.components.exception import CustomException
+# import src.myproject.logger as logger
 #--------------------------------------------------------------------
 # Ensure directory exists function
 #--------------------------------------------------------------------
-test_size = constants.TEST_SIZE
-test_size_val = constants.TEST_SIZE_VAL
-random_state = constants.RANDOM_STATE
+test_sizes = constants.TEST_SIZE
+test_sizes_val = constants.TEST_SIZE_VAL
+random_states = constants.RANDOM_STATE
 #--------------------------------------------------------------------
 def ensure_directory_exists(directory_path):
     """Checks if a directory exists, and creates it if necessary."""
@@ -44,20 +46,42 @@ def ingest_data_from_file(raw_data: str):
     Raises CustomException on failure.
     """
     try:
-        if not os.path.exists(raw_data):
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            raise exception.CustomException(exc_type, exc_value, exc_traceback) from FileNotFoundError(f"The file {raw_data} does not exist.")
         with open(raw_data, 'r', encoding='utf-8') as file:
             df = pd.read_csv(file)
             # logger.app_logger.info("Data ingested successfully from %s", raw_data)
             return df
-    except exception.CustomException as ce:
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        raise exception.CustomException(exc_type, exc_value, exc_traceback) from ce
+    except Exception as e:
+        raise CustomException(e, sys) from e
+#--------------------------------------------------------------------
+def ingest_data_from_mongo(mongo_uri: str, db_name: str, collection_name: str) -> pd.DataFrame:
+    """
+    Ingests data from a MongoDB collection into a Pandas DataFrame.
+    """
+    try:
+        # Establish connection to MongoDB
+        client = pymongo.MongoClient(mongo_uri)
+        db = client[db_name]
+        collection = db[collection_name]
+        
+        # Fetch data from the collection
+        data = list(collection.find())
+        
+        # Convert to DataFrame
+        df = pd.DataFrame(data)
+        
+        # logger.app_logger.info(f"Data ingested successfully from MongoDB collection: {collection_name}")
+        return df
+    except Exception as e:
+        raise CustomException(e, sys) from e
 #--------------------------------------------------------------------
 # Train-Test Split Function
 #--------------------------------------------------------------------
-def train_valid_test_split_data(self, X, y, test_size=test_size, random_state=random_state):
+def train_valid_test_split_data(
+    x, y, test_size=test_sizes, random_state=random_states, 
+    test_size_val=test_sizes_val) -> \
+        Tuple[Tuple[pd.DataFrame, pd.Series], 
+              Tuple[pd.DataFrame, pd.Series], 
+              Tuple[pd.DataFrame, pd.Series]]:
     """Splits the data into training and testing sets."""
     try:
         #--------------------------------------------------
@@ -65,22 +89,21 @@ def train_valid_test_split_data(self, X, y, test_size=test_size, random_state=ra
         # Use 'stratify' to ensure class proportions are kept across splits
         #--------------------------------------------------
         # logger.app_logger.info("Splitting X into X_train_full and X_test...")
-        X_train_full, X_test, y_train_full, y_test = train_test_split(
-            X, y, test_size=test_size, random_state=random_state
+        x_train_full, x_test, y_train_full, y_test = train_test_split(
+            x, y, test_size=test_size, random_state=random_state
         )
         #--------------------------------------------------
         # 3. Second Split: Divide the 'Train-Full' set into 'Train' and 'Validation'
         # To get a 60/20/20 overall split, we take 25% of the remaining 80% (0.25 * 0.80 = 0.20)
         #--------------------------------------------------
         # logger.app_logger.info("Splitting X_train_full into X_train and X_val...")
-        X_train, X_val, y_train, y_val = train_test_split(
-            X_train_full, y_train_full, test_size=test_size_val, random_state=random_state
+        x_train, x_val, y_train, y_val = train_test_split(
+            x_train_full, y_train_full, test_size=test_size_val, random_state=random_state
         )
         # logger.app_logger.info("Data split completed.")
-        return (X_train, y_train), (X_val, y_val), (X_test, y_test)
+        return (x_train, y_train), (x_val, y_val), (x_test, y_test)
     except Exception as e:
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        raise exception.CustomException(exc_type, exc_value, exc_traceback) from e
+        raise CustomException(e, sys) from e
 #--------------------------------------------------------------------
 # List Dataframe Columns by Type
 #--------------------------------------------------------------------
@@ -141,10 +164,9 @@ def create_data_transformation_object(numerical_features, categorical_features) 
         # logger.app_logger.info("Data transformation pipelines created successfully.")
         #----------------------------------------------------------------
         return preprocessor
-    except Exception as ce:
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        raise exception.CustomException(exc_type, exc_value, exc_traceback) from ce
-    
+    except Exception as e:
+        raise CustomException(e, sys) from e
+#--------------------------------------------------------------------
     # def get_project_root():
     # # Searches upward for a specific marker file
     # for parent in Path(__file__).resolve().parents:

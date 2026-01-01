@@ -31,7 +31,7 @@ class NetworkDataExtractor:
         except Exception as e:
             raise CustomException(e, sys) from e
     #----------------------------------------------------------
-    def cv_to_json(self, file_path: str) -> list:
+    def cv_to_json(self, file_path: str) -> list[dict]:
         """Converts CSV data to a list of dictionaries (2025 optimized)."""
         try:
             data = pd.read_csv(file_path, index_col=False)
@@ -40,11 +40,11 @@ class NetworkDataExtractor:
         except Exception as e:
             raise CustomException(e, sys) from e
     #----------------------------------------------------------
-    def push_data_to_mongo(self, data: list):
+    def push_data_to_mongo(self, data: list[dict]) -> int:
         """Pushes data using the settings from the config object."""
         try:
-            db = self.client[self.config.db_name]
-            collection = db[self.config.collection_name]
+            db = self.client[self.config.mongo_db_name]
+            collection = db[self.config.mongo_db_collection_name]
 
             if not data:
                 ns_logger.log_warning("Empty dataset received. Aborting push.")
@@ -54,7 +54,7 @@ class NetworkDataExtractor:
             result = collection.insert_many(data, ordered=False)
             count = len(result.inserted_ids)
             
-            ns_logger.log_info(f"Inserted {count} records into {self.config.db_name}")
+            ns_logger.log_info(f"Inserted {count} records into {self.config.mongo_db_name}")
             return count
         except Exception as e:
             raise CustomException(e, sys) from e
