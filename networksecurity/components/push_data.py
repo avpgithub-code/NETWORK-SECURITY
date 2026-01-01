@@ -9,7 +9,7 @@ from pymongo import MongoClient
 #----------------------------------------------------------
 from networksecurity.components.logger import ns_logger
 from networksecurity.components.exception import CustomException
-from networksecurity.components.config_app import MongoDBAtlasConfig
+from networksecurity.entity.config_app import MongoDBAtlasConfig
 #----------------------------------------------------------
 # Initialize Certifi for 2025 TLS standards
 #----------------------------------------------------------
