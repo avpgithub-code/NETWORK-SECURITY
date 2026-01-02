@@ -4,7 +4,7 @@ import pandas as pd
 import certifi
 from pymongo import MongoClient
 #----------------------------------------------------------
-from networksecurity.components import constants, utils
+from networksecurity.components import utils
 from networksecurity.components.logger import ns_logger
 from networksecurity.components.exception import CustomException
 #----------------------------------------------------------
@@ -13,31 +13,28 @@ from networksecurity.entity.config_app import MongoDBAtlasConfig, \
 #----------------------------------------------------------
 class DataIngestion:
     def __init__(
-            self,
-            mongodb_config: MongoDBAtlasConfig,
-            ingestion_config: DataIngestionConfig,
-            train_config: TrainingPipelineConfig,
-            ingestion_artifact: DataIngestionArtifact
-        ):
-        """
-        Initialize with DataIngestionConfig and TrainingPipelineConfig.
-        """
+        self,
+        mongodb_config: MongoDBAtlasConfig,
+        ingestion_config: DataIngestionConfig,
+        train_config: TrainingPipelineConfig,
+        ingestion_artifact_config: DataIngestionArtifact
+    ):
         try:
             ns_logger.log_info("Initializing DataIngestion with provided configuration.")
             self.mongodb_config = mongodb_config
-            self.train_config = train_config
             self.ingestion_config = ingestion_config
-            #----------------------------------------------------------
+            self.train_config = train_config
+            self.ingestion_artifact_config = ingestion_artifact_config
+            
+            # Derived attributes
             self.db_name = self.mongodb_config.mongo_db_name
             self.collection_name = self.mongodb_config.mongo_db_collection_name
-            #----------------------------------------------------------
-            # Initialize MongoDB client for data ingestion
-            #----------------------------------------------------------
+            
             ca = certifi.where()
             self.mongo_client = MongoClient(self.mongodb_config.mongo_db_uri, tlsCAFile=ca)
-            ns_logger.log_info("DataIngestion initialized with provided configuration.")
         except Exception as e:
             raise CustomException(e, sys) from e
+
     def initiate_data_ingestion(self) -> DataIngestionArtifact:
         """
         Initiates the data ingestion process from MongoDB.
@@ -71,7 +68,7 @@ class DataIngestion:
             ns_logger.log_info(f"Train data saved to : {self.ingestion_config.train_file_name_and_path}")
             ns_logger.log_info(f"Test data saved to : {self.ingestion_config.test_file_name_and_path}")
             #----------------------------------------------------------
-            ingestion_artifact = DataIngestionArtifact(
+            self.ingestion_artifact_config = DataIngestionArtifact(
                 train_file_path=self.ingestion_config.train_file_path,
                 train_file_name_and_path=self.ingestion_config.train_file_name_and_path,
                 test_file_path=self.ingestion_config.test_file_path,
@@ -84,26 +81,26 @@ class DataIngestion:
                 y_file_name_and_path=self.ingestion_config.y_file_name_and_path
             )
             ns_logger.log_info("Data ingestion process completed successfully.")
-            return ingestion_artifact
+            return self.ingestion_artifact_config
         except Exception as e:
             raise CustomException(e, sys) from e
 #----------------------------------------------------------
 # Example usage (for testing purposes)
 #----------------------------------------------------------
-if __name__ == "__main__":
-    try:
-        ns_logger.log_info("Starting data ingestion process from MongoDB.")
-        #----------------------------------------------------------
-        mongo_config = MongoDBAtlasConfig()
-        ingest_config = DataIngestionConfig()
-        training_config = TrainingPipelineConfig()
-        ingest_artifact = DataIngestionArtifact()
-        data_ingestion = DataIngestion(mongo_config, ingest_config, training_config, ingest_artifact)
-        #----------------------------------------------------------
-        # Initiate data ingestion and retrieve the data ingestion artifacts
-        #----------------------------------------------------------
-        ingest_artifact = data_ingestion.initiate_data_ingestion()
-        print(ingest_artifact)
-    except Exception as e:
-            raise CustomException(e, sys) from e
+# if __name__ == "__main__":
+#     try:
+#         ns_logger.log_info("Starting data ingestion process from MongoDB.")
+#         #----------------------------------------------------------
+#         mongo_config = MongoDBAtlasConfig()
+#         ingest_config = DataIngestionConfig()
+#         training_config = TrainingPipelineConfig()
+#         ingest_artifact = DataIngestionArtifact()
+#         data_ingestion = DataIngestion(mongo_config, ingest_config, training_config, ingest_artifact)
+#         #----------------------------------------------------------
+#         # Initiate data ingestion and retrieve the data ingestion artifacts
+#         #----------------------------------------------------------
+#         ingest_artifact = data_ingestion.initiate_data_ingestion()
+#         print(ingest_artifact)
+#     except Exception as e:
+#             raise CustomException(e, sys) from e
         

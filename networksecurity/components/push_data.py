@@ -61,28 +61,28 @@ class NetworkDataExtractor:
 #----------------------------------------------------------
 # Execution Block
 #----------------------------------------------------------
-if __name__ == "__main__":
-    try:
-        #----------------------------------------------------------
-        # 1. Instantiate the Configuration
-        #----------------------------------------------------------
-        ingestion_mongo_config = MongoDBAtlasConfig()
-        #----------------------------------------------------------
-        # 2. Instantiate the Logic with the Config injected
-        extractor = NetworkDataExtractor(config=ingestion_mongo_config)
-        #----------------------------------------------------------
-        # 3. Execution
-        json_data = extractor.cv_to_json(ingestion_mongo_config.file_path)
-        #----------------------------------------------------------
-        # Debug: Print first 5 records to verify
-        #----------------------------------------------------------
-        print("--- Data Preview (First 5 Records) ---")
-        print(json.dumps(json_data[:5], indent=4))
-        print(f"Total Records Prepared: {len(json_data)}")
-        #----------------------------------------------------------
-        # 4. Push to MongoDB
-        #----------------------------------------------------------
-        extractor.push_data_to_mongo(json_data)
+# if __name__ == "__main__":
+#     try:
+#         #----------------------------------------------------------
+#         # 1. Instantiate the Configuration
+#         #----------------------------------------------------------
+#         ingestion_mongo_config = MongoDBAtlasConfig()
+#         #----------------------------------------------------------
+#         # 2. Instantiate the Logic with the Config injected
+#         extractor = NetworkDataExtractor(config=ingestion_mongo_config)
+#         #----------------------------------------------------------
+#         # 3. Execution
+#         json_data = extractor.cv_to_json(ingestion_mongo_config.file_path)
+#         #----------------------------------------------------------
+#         # Debug: Print first 5 records to verify
+#         #----------------------------------------------------------
+#         print("--- Data Preview (First 5 Records) ---")
+#         print(json.dumps(json_data[:5], indent=4))
+#         print(f"Total Records Prepared: {len(json_data)}")
+#         #----------------------------------------------------------
+#         # 4. Push to MongoDB
+#         #----------------------------------------------------------
+#         extractor.push_data_to_mongo(json_data)
         
-    except Exception as e:
-        raise CustomException(e, sys) from e
+#     except Exception as e:
+#         raise CustomException(e, sys) from e
