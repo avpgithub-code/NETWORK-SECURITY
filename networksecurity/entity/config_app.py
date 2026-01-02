@@ -23,14 +23,21 @@ class DataIngestionConfig():
     ingested_dir: Path = constants.DATA_INGESTION_INGESTED_DIR
     target_column: str = constants.TARGET_COLUMN
     #----------------------------------------------------------
-    train_file_name: str = constants.TRAIN_FILE_NAME
+    train_file_path: Path = constants.DATA_INGESTION_INGESTED_DIR
+    train_file_name: Path = constants.TRAIN_FILE_NAME
+    test_file_path:Path = constants.DATA_INGESTION_INGESTED_DIR
     train_file_name_and_path: Path = constants.TRAIN_FILE_NAME_AND_PATH
-    test_file_name: str = constants.TEST_FILE_NAME
+    test_file_name: Path = constants.TEST_FILE_NAME
     test_file_name_and_path: Path = constants.TEST_FILE_NAME_AND_PATH
     #----------------------------------------------------------
-    x_file_name: str = constants.X_FILE
+    raw_data_file_path: Path = constants.DATA_INGESTION_FEATURE_STORE_DIR
+    raw_data_file_name_and_path: Path = constants.FEATURE_FILE_NAME_AND_PATH
+    #--------------------------------------------------------
+    x_file_path: Path = constants.DATA_INGESTION_FEATURE_STORE_DIR
+    x_file_name: Path = constants.X_FILE
     x_file_name_and_path: Path = constants.X_FILE_AND_PATH
-    y_file_name: str = constants.Y_FILE
+    y_file_path: Path = constants.DATA_INGESTION_FEATURE_STORE_DIR
+    y_file_name: Path = constants.Y_FILE
     y_file_name_and_path: Path = constants.Y_FILE_AND_PATH
     #----------------------------------------------------------
     x_train_file: str = constants.X_TRAIN_FILE
@@ -67,7 +74,20 @@ class TrainingPipelineConfig:
     pipeline_name: str = constants.PIPELINE_NAME
     timestamp: str = datetime.now().strftime("%Y%m%d%H%M%S")
 
-
+@dataclass
+class DataIngestionArtifact:
+    """Configuration object to store artifact paths."""
+    train_file_path: Path = constants.DATA_INGESTION_INGESTED_DIR
+    train_file_name_and_path: Path = constants.TRAIN_FILE_NAME_AND_PATH
+    test_file_path: Path = constants.DATA_INGESTION_INGESTED_DIR
+    test_file_name_and_path: Path = constants.TEST_FILE_NAME_AND_PATH
+    raw_data_file_path: Path = constants.DATA_INGESTION_FEATURE_STORE_DIR
+    raw_data_file_name_and_path: Path = constants.FEATURE_FILE_NAME_AND_PATH
+    x_file_path: Path = constants.DATA_INGESTION_FEATURE_STORE_DIR
+    x_file_name_and_path: Path = constants.X_FILE_AND_PATH
+    y_file_path: Path = constants.DATA_INGESTION_FEATURE_STORE_DIR
+    y_file_name_and_path: Path = constants.Y_FILE_AND_PATH
+    
 # if __name__ == "__main__":
 #     mongo_config = MongoDBAtlasConfig()
 #     training_config = TrainingPipelineConfig()

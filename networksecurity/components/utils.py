@@ -6,6 +6,7 @@ such as ensuring the existence of directories.
 import os
 import sys
 import pymongo
+import numpy as np
 import pandas as pd
 from pathlib import Path
 from typing import Tuple, List
@@ -74,7 +75,77 @@ def ingest_data_from_mongo(mongo_uri: str, db_name: str, collection_name: str) -
     except Exception as e:
         raise CustomException(e, sys) from e
 #--------------------------------------------------------------------
+def read_collection_from_mongo(
+    mongo_config, training_config, ingest_config,
+    mongo_client: pymongo.MongoClient,db_name: str,collection_name: str) -> pd.DataFrame:
+    """Reads data from a MongoDB collection into a Pandas DataFrame."""
+    try:
+        ensure_directory_exists(mongo_config.file_path)
+        ensure_directory_exists(training_config.artifact_dir)
+        ensure_directory_exists(ingest_config.feature_store_dir)
+        ensure_directory_exists(ingest_config.ingested_dir)
+        ensure_directory_exists(ingest_config.x_file_name_and_path.parent)
+        ensure_directory_exists(ingest_config.y_file_name_and_path.parent)
+        #----------------------------------------------------------
+        # Ingest data from MongoDB
+        #----------------------------------------------------------
+        collection = mongo_client[db_name][collection_name]
+        collection_df = pd.DataFrame(list(collection.find()))
+        #----------------------------------------------------------
+        #In 2026, when working with data ingested from MongoDB, 
+        # it is a best practice to use a conditional check before dropping the _id column. 
+        # This prevents pipeline from crashing if the column is already missing 
+        # (e.g., if it was filtered out during the MongoDB query or dropped in a previous step).
+        #----------------------------------------------------------
+        collection_df.drop(columns=["_id"], axis=1, errors="ignore", inplace=True)
+        # Replace multiple variants of "missing" in one go
+        collection_df.replace(["na", "NA", "", "nan"], np.nan, inplace=True)
+        #----------------------------------------------------------
+        # Derive features (X) and target variable (y)
+        #----------------------------------------------------------
+        x = collection_df.drop(columns=[ingest_config.target_column], axis=1)
+        y = collection_df[ingest_config.target_column]
+        #----------------------------------------------------------
+        # Save the ingested data to a CSV file for record-keeping
+        #----------------------------------------------------------
+        collection_df.to_csv(ingest_config.feature_file_name_and_path, index=False, header=True)
+        x.to_csv(ingest_config.x_file_name_and_path, index=False, header=True)
+        y.to_csv(ingest_config.y_file_name_and_path, index=False, header=True)
+        
+        print(f"Features and target variable separated. Features shape: {x.shape}, Target shape: {y.shape}")
+        
+        return collection_df,x,y
+    except Exception as e:
+        raise CustomException(e, sys) from e
+#--------------------------------------------------------------------
 # Train-Test Split Function
+#--------------------------------------------------------------------
+def train_test_split_data(
+    df, test_size=constants.TEST_SIZE, random_state=constants.RANDOM_STATE) -> \
+        Tuple[pd.DataFrame, pd.DataFrame]:
+    """Splits the data into training and testing sets."""
+    try:
+        train_set,test_set = train_test_split(
+            df, test_size=test_size, random_state=random_state
+        )
+        return train_set, test_set
+    except Exception as e:
+        raise CustomException(e, sys) from e
+#--------------------------------------------------------------------
+# Save Train-Test Data
+
+def save_train_test_data(
+    ingest_config,train_data,test_data):
+    """Saves the train and test data to specified file paths."""
+    try:
+        # Ensure the ingested directory exists
+        ensure_directory_exists(ingest_config.ingested_dir)
+        # Save the training data
+        train_data.to_csv(ingest_config.train_file_name_and_path, index=False, header=True)
+        # Save the testing data
+        test_data.to_csv(ingest_config.test_file_name_and_path, index=False, header=True)
+    except Exception as e:
+        raise CustomException(e, sys) from e
 #--------------------------------------------------------------------
 def train_valid_test_split_data(
     x, y, test_size=test_sizes, random_state=random_states, 
@@ -102,6 +173,28 @@ def train_valid_test_split_data(
         )
         # logger.app_logger.info("Data split completed.")
         return (x_train, y_train), (x_val, y_val), (x_test, y_test)
+    except Exception as e:
+        raise CustomException(e, sys) from e
+def save_split_data_to_feature_store(
+    ingest_config,collection_df,x,y,x_train,y_train,x_val,y_val,x_test,y_test):
+    """Saves the split data to the feature store."""
+    try:
+        # Ensure the feature store directory exists
+        ensure_directory_exists(ingest_config.feature_store_dir)
+        # Save the full collection data
+        collection_df.to_csv(ingest_config.feature_file_name_and_path, index=False, header=True)
+        # Save the features and target variable
+        x.to_csv(ingest_config.x_file_name_and_path, index=False, header=True)
+        y.to_csv(ingest_config.y_file_name_and_path, index=False, header=True)
+        # Save the training set
+        x_train.to_csv(ingest_config.x_train_file_and_path, index=False, header=True)
+        y_train.to_csv(ingest_config.y_train_file_and_path, index=False, header=True)
+        # Save the validation set
+        x_val.to_csv(ingest_config.x_val_file_and_path, index=False, header=True)
+        y_val.to_csv(ingest_config.y_val_file_and_path, index=False, header=True)
+        # Save the test set
+        x_test.to_csv(ingest_config.x_test_file_and_path, index=False, header=True)
+        y_test.to_csv(ingest_config.y_test_file_and_path, index=False, header=True)
     except Exception as e:
         raise CustomException(e, sys) from e
 #--------------------------------------------------------------------

@@ -15,3 +15,8 @@ threadpoolctl==3.6.0
 tzdata==2025.3
 zope.interface==8.1.1
 # -e .
+
+* Configured MongoDB-Atlas on Cloud using AWS. 
+* Created ETL Pipeline to load local CSV data to load as JSON formatted data into this Cloud MongoDB.
+* Created Ingestion and Test-Train routines to read this cloud data and split into X-train...etc and save these CSV into Artifact folder
+* Continue working on Model development using these Train-Test data.. 😉🙂
