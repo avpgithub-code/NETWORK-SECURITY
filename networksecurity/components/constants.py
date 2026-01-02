@@ -62,8 +62,6 @@ RANDOM_STATE = int(os.getenv("RANDOM_STATE"))
 LOG_FILE_MAX_BYTES = int(os.getenv("LOG_FILE_MAX_BYTES")) # 10 MB
 LOG_FILE_BACKUP_COUNT = int(os.getenv("LOG_FILE_BACKUP_COUNT")) # 5 backups
 #----------------------------------------------------------------------------------------------------
-
-#----------------------------------------------------------------------------------------------------
 DATA_PROCESSED_FILE = "data.csv"
 X_FILE = "X.csv"
 X_FILE_AND_PATH = DATA_INGESTION_FEATURE_STORE_DIR / X_FILE 
@@ -92,25 +90,6 @@ X_VAL_TRANSFORMED_FILE_AND_PATH = DATA_INGESTION_INGESTED_DIR / X_VAL_TRANSFORME
 X_TEST_TRANSFORMED_FILE = "X_test_transformed.csv"
 X_TEST_TRANSFORMED_FILE_AND_PATH = DATA_INGESTION_INGESTED_DIR / X_TEST_TRANSFORMED_FILE
 JOBLIB_FILE = "preprocessor.joblib"
-#----------------------------------------------------------------------------------------------------
-# 5. Final Absolute File Paths
-#----------------------------------------------------------------------------------------------------
-# DATA_RAW_FILE_AND_PATH = (RAW_DIR / DATA_RAW_FILE).resolve()
-# DATA_PROCESSED_FILE_AND_PATH = (PROCESSED_DIR / DATA_PROCESSED_FILE).resolve()
-# JOBLIB_FILE_AND_PATH = (MODELS_DIR / JOBLIB_FILE).resolve()
-# CHAMPION_MODEL_AND_PATH = (MODELS_DIR / CHAMPION_MODEL_NAME).resolve()
-# #----------------------------------------------------------------------------------------------------
-# X_FILE_AND_PATH = (PROCESSED_DIR / X_FILE).resolve()
-# Y_FILE_AND_PATH = (PROCESSED_DIR / Y_FILE).resolve()
-# X_TRAIN_FILE_AND_PATH = (PROCESSED_DIR / X_TRAIN_FILE).resolve()
-# Y_TRAIN_FILE_AND_PATH = (PROCESSED_DIR / Y_TRAIN_FILE).resolve()
-# X_VAL_FILE_AND_PATH = (PROCESSED_DIR / X_VAL_FILE).resolve()
-# Y_VAL_FILE_AND_PATH = (PROCESSED_DIR / Y_VAL_FILE).resolve()
-# X_TEST_FILE_AND_PATH = (PROCESSED_DIR / X_TEST_FILE).resolve()
-# Y_TEST_FILE_AND_PATH = (PROCESSED_DIR / Y_TEST_FILE).resolve()
-# X_TRANSFORMED_FILE_AND_PATH = (PROCESSED_DIR / X_TRANSFORMED_FILE).resolve()
-# X_VAL_TRANSFORMED_FILE_AND_PATH = (PROCESSED_DIR / X_VAL_TRANSFORMED_FILE).resolve()
-# X_TEST_TRANSFORMED_FILE_AND_PATH = (PROCESSED_DIR / X_TEST_TRANSFORMED_FILE).resolve()
 #----------------------------------------------------------------------------------------------------
 # Example usage (for testing purposes)
 #----------------------------------------------------------------------------------------------------
